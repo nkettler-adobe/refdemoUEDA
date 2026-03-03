@@ -2,8 +2,8 @@
 Your project's description...
 
 ## Environments
-- Preview: https://main--refdemoDA--scherneff.aem.page/
-- Live: https://main--refdemoDA--scherneff.aem.live/
+- Preview: https://main--refdemoUEDA--nkettler-adobe.aem.page/
+- Live: https://main--refdemoUEDA--nkettler-adobe.aem.live/
 
 ## Documentation
 
