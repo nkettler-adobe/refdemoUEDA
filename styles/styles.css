@@ -837,3 +837,9 @@ table {
 }
 
 /* Responsive styles- end */
+
+
+/* add healthspring styling */
+.section.nav-brand {
+    color: white;
+}
