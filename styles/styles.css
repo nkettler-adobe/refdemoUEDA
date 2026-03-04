@@ -546,7 +546,7 @@ main picture:hover::before {
 
 
 
-/* Parallax effect - Start */
+/* Parallax effect - Start 
 html {
   overflow-x: hidden;
 }
@@ -560,9 +560,8 @@ body {
 }
 
 main {
-  /*-webkit-transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
-*/
 }
 
 main .hero-container {
