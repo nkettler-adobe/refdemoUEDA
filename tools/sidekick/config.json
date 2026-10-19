@@ -1,5 +1,5 @@
 {
-  "project": "DA Block Collection",
+  "project": "refdemoUEDA",
   "editUrlLabel": "Document Authoring",
   "editUrlPattern": "https://da.live/edit#/{{org}}/{{site}}{{pathname}}",
   "plugins": [
@@ -8,7 +8,7 @@
       "title": "Plugin demo",
       "environments": ["edit"],
       "daLibrary": true,
-      "url": "https://main--da-block-collection--aemsites.hlx.live/tools/demo/demo.html"
+      "url": "https://main--refdemoueda--nkettler-adobe.aem.live/tools/demo/demo.html"
     },
     {
       "id": "experimentation",
@@ -30,13 +30,7 @@
     {
       "title": "App demo",
       "description": "This is a sample app using the DA SDK.",
-      "url": "https://da.live/app/aemsites/da-block-collection/tools/demo-app"
-    },
-    {
-      "title": "Tag browser",
-      "image": "https://main--da-block-collection--aemsites.hlx.page/media_1061934561e8a4f01907e616a0ce0e4b74d63b92e.jpeg",
-      "description": "Manage your tags",
-      "url": "https://da.live/app/aemsites/da-block-collection/tools/tags"
+      "url": "https://da.live/app/nkettler-adobe/refdemoueda/tools/demo-app"
     }
   ]
 }
