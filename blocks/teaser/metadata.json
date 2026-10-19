@@ -1,0 +1,16 @@
+{
+  "variantName": "teaser",
+  "baseBlock": "teaser",
+  "version": "1.0.0",
+  "created": "2026-10-19T18:42:48.000Z",
+  "visualCharacteristics": {
+    "colorScheme": "dark",
+    "purpose": "banner",
+    "imagePattern": "background"
+  },
+  "contentPattern": {
+    "structure": "key-value-config",
+    "buttonCount": 1,
+    "imageCount": 1
+  }
+}

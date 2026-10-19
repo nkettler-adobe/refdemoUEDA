@@ -38,8 +38,10 @@ function createVideoPlayer(videoSrc) {
 
 function createBackgroundImage(properties) {
   let missingSrc;
-  if (!properties.imageref) missingSrc = true;
-  const imgSrc = (!missingSrc) ? properties.imageref : '';
+  // model field is imageReference; imageRef kept for older content
+  const imageSrc = properties.imagereference || properties.imageref;
+  if (!imageSrc) missingSrc = true;
+  const imgSrc = (!missingSrc) ? imageSrc : '';
   const imgAlt = (properties.imagealt) ? properties.imagealt : '';
   const imgBackground = div({ class: 'background-image' },
     img({ class: 'teaser-background', src: imgSrc, alt: imgAlt }),
@@ -117,9 +119,10 @@ export default function decorate(block) {
   const swooshSecond = `${window.hlx.codeBasePath}/icons/teaser_outerswoosh.svg`;
   const isVideo = (properties.teaserstyle && properties.teaserstyle === 'video');
   const videoAutoplay = (properties.videobehavior && properties.videobehavior === 'autoplay');
-  const buttonText = (properties['btn-text']) ? properties['btn-text'] : 'Button';
+  // model fields are buttonText/buttonLink; btn-text/btn-link kept for older content
+  const buttonText = properties.buttontext || properties['btn-text'] || 'Button';
   const buttonStyle = (properties['btn-style']) ? properties['btn-style'] : 'dark-bg';
-  const buttonLink = (properties['btn-link']) ? properties['btn-link'] : '';
+  const buttonLink = properties.buttonlink || properties['btn-link'] || '';
   const videoReference = isVideo ? properties.videoreference : sampleVideo;
   const teaser = div({ class: 'teaser-container' },
     isVideo ? createVideoPlayer(videoReference) : createBackgroundImage(properties),

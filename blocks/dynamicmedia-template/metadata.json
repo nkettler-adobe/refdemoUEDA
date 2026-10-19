@@ -1,0 +1,15 @@
+{
+  "variantName": "dynamicmedia-template",
+  "baseBlock": "dynamicmedia-template",
+  "version": "1.0.0",
+  "created": "2026-10-19T18:42:48.000Z",
+  "visualCharacteristics": {
+    "purpose": "dynamic-media-image",
+    "imagePattern": "generated"
+  },
+  "contentPattern": {
+    "structure": "type-url-mappings",
+    "buttonCount": 0,
+    "imageCount": 0
+  }
+}
