@@ -13,7 +13,8 @@ export default function decorate(block) {
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
     const li = document.createElement('li');
-    const style = row.lastElementChild?.querySelector('p')?.textContent;
+    // optional third cell holds the card position/style; image and text come first
+    const style = row.children.length > 2 && row.lastElementChild?.querySelector('p')?.textContent;
     // const style = row.querySelector('p[data-aue-label="Style"]')?.textContent;
     if (style) {
       li.className = style;
@@ -29,6 +30,8 @@ export default function decorate(block) {
     ul.append(li);
   });
   ul.querySelectorAll('picture > img').forEach((img) => {
+    // external images (AEM DAM, Dynamic Media) can't use the media optimizer
+    if (new URL(img.src, window.location.href).origin !== window.location.origin) return;
     const optimizedPic = createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]);
     moveInstrumentation(img, optimizedPic.querySelector('img'));
     img.closest('picture').replaceWith(optimizedPic);

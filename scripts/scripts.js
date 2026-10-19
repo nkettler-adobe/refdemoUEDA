@@ -86,72 +86,80 @@ async function loadFonts() {
   }
 }
 
+const IMAGE_EXTENSION = /\.(avif|gif|jpe?g|png|svg|webp)$/i;
+const ASSET_UUID = /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i;
+
 /**
- * Decorates Dynamic Media images by modifying their URLs to include specific parameters
- * and creating a <picture> element with different sources for different image formats and sizes.
- *
- * @param {HTMLElement} main - The main container element that includes the links to be processed.
+ * Classifies a link as an AEM image asset.
+ * @param {URL} url the link URL
+ * @returns {string|null} 'delivery' for a Dynamic Media delivery image,
+ * 'dam' for an author/publish DAM image, or null for anything else
  */
-export function decorateDMImages(main) {
-  main.querySelectorAll('a[href^="https://delivery-p"]').forEach((a) => {
-    const url = new URL(a.href.split('?')[0]);
-    if (url.hostname.endsWith('.adobeaemcloud.com')) {
-      const blockBeingDecorated = whatBlockIsThis(a);
-      let blockName = '';
-      let rotate = '';
-      let flip = '';
-      let crop = '';
+function getAemImageType(url) {
+  const { hostname } = url;
+  const pathname = decodeURIComponent(url.pathname);
+  if (!hostname.endsWith('.adobeaemcloud.com') || !IMAGE_EXTENSION.test(pathname)) return null;
+  if (hostname.startsWith('delivery-p') && ASSET_UUID.test(pathname)) return 'delivery';
+  if (/^(author|publish)-p\d+-e\d+\./.test(hostname) && pathname.startsWith('/content/dam/')) return 'dam';
+  return null;
+}
 
-      if (blockBeingDecorated) {
-        blockName = Array.from(blockBeingDecorated.classList).find((className) => className !== 'block');
-      }
-      if (blockName && blockName === 'dynamicmedia-image') {
-        rotate = blockBeingDecorated?.children[3]?.textContent?.trim();
-        flip = blockBeingDecorated?.children[4]?.textContent?.trim();
-        crop = blockBeingDecorated?.children[5]?.textContent?.trim();
-      }
+/**
+ * Builds a responsive picture for a Dynamic Media delivery URL.
+ * Rotate, flip and crop come from the dynamicmedia-image block, when present.
+ * @param {URL} url the delivery URL
+ * @param {string} alt the alt text
+ * @param {Element} a the link being replaced
+ * @returns {Element} the picture
+ */
+function buildDeliveryPicture(url, alt, a) {
+  const dmBlock = a.closest('.dynamicmedia-image');
+  const rotate = dmBlock?.children[3]?.textContent?.trim();
+  const flip = dmBlock?.children[4]?.textContent?.trim();
+  const crop = dmBlock?.children[5]?.textContent?.trim();
+  const params = `${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`;
+  const href = `${url.origin}${url.pathname}`;
+  const hrefWOExtn = href.substring(0, href.lastIndexOf('.')).replace(/\/original\/(?=as\/)/, '/');
+  const widths = [['1400', '(min-width: 992px)'], ['1320', '(min-width: 768px)'], ['780', '(min-width: 320px)']];
+  return picture(
+    ...widths.map(([width, media]) => source({
+      srcset: `${hrefWOExtn}.webp?width=${width}&quality=85&preferwebp=true${params}`,
+      type: 'image/webp',
+      media,
+    })),
+    ...widths.map(([width, media]) => source({
+      srcset: `${hrefWOExtn}.webp?width=${width}&quality=85${params}`,
+      media,
+    })),
+    img({ src: `${hrefWOExtn}.webp?width=1400&quality=85${params}`, alt }),
+  );
+}
 
-      const uuidPattern = /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i;
-      const match = url.href?.match(uuidPattern);
-      if (!match) {
-        throw new Error('No asset UUID found in URL');
-      }
-      const hrefWOExtn = url.href?.substring(0, url.href?.lastIndexOf('.'))?.replace(/\/original\/(?=as\/)/, '/');
-      const pictureEl = picture(
-        source({
-          srcset: `${hrefWOExtn}.webp?width=1400&quality=85&preferwebp=true${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          type: 'image/webp',
-          media: '(min-width: 992px)',
-        }),
-        source({
-          srcset: `${hrefWOExtn}.webp?width=1320&quality=85&preferwebp=true${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          type: 'image/webp',
-          media: '(min-width: 768px)',
-        }),
-        source({
-          srcset: `${hrefWOExtn}.webp?width=780&quality=85&preferwebp=true${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          type: 'image/webp',
-          media: '(min-width: 320px)',
-        }),
-        source({
-          srcset: `${hrefWOExtn}.webp?width=1400&quality=85${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          media: '(min-width: 992px)',
-        }),
-        source({
-          srcset: `${hrefWOExtn}.webp?width=1320&quality=85${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          media: '(min-width: 768px)',
-        }),
-        source({
-          srcset: `${hrefWOExtn}.webp?width=780&quality=85${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          media: '(min-width: 320px)',
-        }),
-        img({
-          src: `${hrefWOExtn}.webp?width=1400&quality=85${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          alt: a.innerText,
-        }),
-      );
-      a.replaceWith(pictureEl);
+/**
+ * Turns links to AEM image assets into pictures, so blocks receive the same
+ * markup as an image uploaded to the document. Handles DAM links
+ * (publish/author /content/dam/...) and Dynamic Media delivery links, which
+ * is what the DA asset picker inserts when aem.assets.image.type is "link".
+ * The link text becomes the alt text, unless it is just the URL.
+ * @param {Element} main the container element
+ */
+export function decorateAemAssets(main) {
+  main.querySelectorAll('a[href*=".adobeaemcloud.com/"]').forEach((a) => {
+    if (a.querySelector('img, picture')) return;
+    let url;
+    try {
+      url = new URL(a.href);
+    } catch (e) {
+      return;
     }
+    const type = getAemImageType(url);
+    if (!type) return;
+    const text = a.textContent.trim();
+    const alt = (text && !text.startsWith('http')) ? text : (a.title || '');
+    const pictureEl = type === 'delivery'
+      ? buildDeliveryPicture(url, alt, a)
+      : picture(img({ src: a.href, alt, loading: 'lazy' }));
+    a.replaceWith(pictureEl);
   });
 }
 
@@ -249,13 +257,14 @@ function decorateButtons(main) {
  */
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
+  // AEM asset links become pictures before buttons and blocks are decorated
+  decorateAemAssets(main);
   // hopefully forward compatible button decoration
   decorateButtons(main);
   decorateIcons(main);
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
-  decorateDMImages(main);
 }
 
 async function renderWBDataLayer() {
