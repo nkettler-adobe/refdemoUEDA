@@ -196,6 +196,15 @@ export default async function decorate(block) {
     brandLink.className = '';
     brandLink.closest('.button-container').className = '';
   }
+  // a logo (uploaded image or AEM asset) with no link of its own links home
+  const brandPicture = navBrand.querySelector('picture');
+  if (brandPicture && !navBrand.querySelector('a')) {
+    const homeLink = document.createElement('a');
+    homeLink.href = '/';
+    if (!brandPicture.querySelector('img')?.alt) homeLink.setAttribute('aria-label', 'Home');
+    brandPicture.replaceWith(homeLink);
+    homeLink.append(brandPicture);
+  }
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
