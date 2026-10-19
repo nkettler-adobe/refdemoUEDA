@@ -1,5 +1,11 @@
 import { fetchPlaceholders } from './placeholders.js';
-import { isAuthorEnvironment } from './scripts.js';
+
+export function isAuthorEnvironment() {
+  if (window?.location?.origin?.includes('author')) {
+    return true;
+  }
+  return false;
+}
 
 export const PATH_PREFIX = '/language-masters';
 export const SUPPORTED_LANGUAGES = ['en'];
