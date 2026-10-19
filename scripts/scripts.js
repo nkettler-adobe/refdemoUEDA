@@ -20,7 +20,11 @@ import {
   getLanguage,
   formatDate,
   PATH_PREFIX,
+  isAuthorEnvironment,
 } from './utils.js';
+
+// re-exported so blocks can keep importing it from scripts.js
+export { isAuthorEnvironment };
 
 /**
  * Moves all the attributes from a given elmenet to another given element.
@@ -50,13 +54,6 @@ function whatBlockIsThis(element) {
     if (currentElement.classList.length > 0) return currentElement.classList[0];
   }
   return null;
-}
-
-export function isAuthorEnvironment() {
-  if (window?.location?.origin?.includes('author')) {
-    return true;
-  }
-  return false;
 }
 
 /**
